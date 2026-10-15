@@ -1,0 +1,7 @@
+dist/
+*.log
+.env
+
+# Rohbilder aus der KI-Generierung (mehrere MB, nur lokal gebraucht).
+# Der Build nutzt die fertig aufbereiteten Dateien in bilder/.
+bildkarten-quelle/
