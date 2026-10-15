@@ -75,3 +75,30 @@ Erklärung zwei.
 ### Erklärung Englisch
 
 Explanation two.
+
+## Schild: Testschild
+
+### Bild
+
+test-schild-1.webp
+
+### Frage Deutsch
+
+Was bedeutet dieses Schild?
+
+### Frage Englisch
+
+What does this sign mean?
+
+### Optionen
+
+- [x] Richtige Bedeutung
+- [ ] Falsche Bedeutung
+
+### Erklärung Deutsch
+
+Weil das Schild das bedeutet.
+
+### Erklärung Englisch
+
+Because that's what the sign means.

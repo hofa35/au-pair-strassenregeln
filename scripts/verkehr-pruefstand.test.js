@@ -44,6 +44,39 @@ test('ein vollständiges Modul ist gültig', () => {
   assert.deepStrictEqual(validateVerkehrsmodul(gueltigesModul()), { valid: true, errors: [] });
 });
 
+test('ein Modul ohne Schilder ist weiterhin gültig (Schild-Quiz ist optional)', () => {
+  const modul = gueltigesModul();
+  modul.schilder = [];
+  assert.deepStrictEqual(validateVerkehrsmodul(modul), { valid: true, errors: [] });
+});
+
+test('ein vollständiges Schild macht das Modul nicht ungültig', () => {
+  const modul = gueltigesModul();
+  modul.schilder = [
+    {
+      titel: 'S1',
+      bild: 's1.webp',
+      fragDe: 'DE?',
+      fragEn: 'EN?',
+      optionen: [
+        { text: 'X', richtig: true },
+        { text: 'Y', richtig: false },
+      ],
+      erklaerungDe: 'DE',
+      erklaerungEn: 'EN',
+    },
+  ];
+  assert.deepStrictEqual(validateVerkehrsmodul(modul), { valid: true, errors: [] });
+});
+
+test('ein unvollständiges Schild wird gemeldet, mit "Schild" statt "Aufgabe" in der Meldung', () => {
+  const modul = gueltigesModul();
+  modul.schilder = [{ titel: 'Kaputtes Schild', bild: '', fragDe: '', fragEn: '', optionen: [], erklaerungDe: '', erklaerungEn: '' }];
+  const result = validateVerkehrsmodul(modul);
+  assert.strictEqual(result.valid, false);
+  assert.match(result.errors.join(','), /Schild 1 \(Kaputtes Schild\): bild fehlt/);
+});
+
 test('fehlende einleitungDe wird gemeldet', () => {
   const modul = gueltigesModul();
   modul.einleitungDe = '';

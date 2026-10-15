@@ -115,13 +115,22 @@ main { max-width: 56rem; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 4re
   background: var(--karte);
   border-radius: var(--radius-gross);
   box-shadow: var(--schatten);
-  padding: 1.25rem;
+  padding: 0.6rem 0.6rem 1.1rem;
   text-decoration: none;
   color: inherit;
-  transition: transform 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.karte--offen:hover { transform: translateY(-2px); }
-.karte--bald { opacity: 0.6; cursor: default; }
+.karte--offen:hover { transform: translateY(-2px); box-shadow: 0 1px 2px rgba(31, 42, 51, 0.06), 0 14px 32px -16px rgba(31, 42, 51, 0.45); }
+.karte--bald { opacity: 0.75; cursor: default; }
+.karte--bald .karte-bild img { opacity: 0.85; }
+
+.karte-bild {
+  border-radius: 1.1rem;
+  overflow: hidden;
+  aspect-ratio: 3 / 2;
+  background: var(--grund);
+}
+.karte-bild img { width: 100%; height: 100%; object-fit: cover; }
 
 .karte-kopf {
   display: flex;
@@ -129,14 +138,29 @@ main { max-width: 56rem; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 4re
   gap: 0.6rem;
   border-radius: calc(var(--radius) - 0.2rem);
   padding: 0.4rem 0.7rem;
-  margin-bottom: 0.75rem;
+  margin: 0.85rem 0.5rem 0;
   width: fit-content;
 }
 .karte-nummer { font-weight: 700; }
 .karte-thema { font-size: 0.8rem; font-weight: 600; }
-.karte-titel { margin: 0 0 0.5rem; font-size: 1.05rem; }
-.karte-status { font-size: 0.75rem; color: var(--text-leise); }
-.karte-pfeil { color: var(--primaer); }
+.karte-titel { margin: 0.6rem 0.5rem 0; font-size: 1.05rem; }
+.karte-status {
+  display: block;
+  margin: 0.5rem 0.5rem 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-leise);
+}
+.karte-pfeil {
+  display: flex;
+  align-items: center;
+  margin: 0.5rem 0.5rem 0;
+  color: var(--primaer);
+  transition: transform 0.15s ease;
+}
+.karte--offen:hover .karte-pfeil { transform: translateX(3px); }
 
 /* Modulseite */
 
@@ -202,6 +226,29 @@ main { max-width: 56rem; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 4re
 .rueckmeldung--falsch { background: var(--falsch-hell); color: var(--falsch); }
 
 .erklaerung-feld .erklaerung { background: var(--violett-hell); box-shadow: none; }
+
+/* Schild-Quiz: kompaktere Variante der Aufgabe-Karte, im Grid statt
+   untereinander, Schild-Icon statt Straßenszene. Optionen/Rückmeldung/
+   Erklärung-Feld teilen sich Klassen und Styles mit der normalen Aufgabe. */
+.schilder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+.schild-karte { margin-bottom: 0; }
+.schild-bild {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+.schild-bild img {
+  width: 9rem;
+  height: 9rem;
+  object-fit: contain;
+  background: var(--grund);
+  border-radius: var(--radius);
+}
+.block-hinweis { color: var(--text-leise); font-size: 0.9rem; margin: -0.25rem 0 1rem; }
 
 .modul-fuss { margin-top: 2rem; }
 

@@ -12,23 +12,16 @@ const { parseVerkehrsmodul } = require('./verkehr-parser.js');
 
 const MINDESTENS_AUFGABEN = 2;
 
-function validateVerkehrsmodul(modul) {
+/**
+ * Prüft die gemeinsamen Pflichtfelder einer Liste von Aufgaben oder
+ * Schildern (beide haben dieselbe Form, siehe verkehr-parser.js). `label`
+ * steht vorn in der Fehlermeldung, damit man sieht, aus welcher Liste ein
+ * Fehler stammt.
+ */
+function validateAufgabenListe(liste, label) {
   const errors = [];
-  if (!modul.id) errors.push('id fehlt');
-  if (!modul.titel) errors.push('titel fehlt');
-  if (!modul.themenbereich) errors.push('themenbereich fehlt');
-  if (!modul.einleitungDe) errors.push('einleitungDe fehlt');
-  if (!modul.einleitungEn) errors.push('einleitungEn fehlt');
-  if (!modul.regelDe) errors.push('regelDe fehlt');
-  if (!modul.regelEn) errors.push('regelEn fehlt');
-
-  const aufgaben = modul.aufgaben || [];
-  if (aufgaben.length < MINDESTENS_AUFGABEN) {
-    errors.push(`zu wenige Aufgaben (${aufgaben.length}, mindestens ${MINDESTENS_AUFGABEN})`);
-  }
-
-  aufgaben.forEach((aufgabe, i) => {
-    const marke = `Aufgabe ${i + 1} (${aufgabe.titel || 'ohne Titel'})`;
+  liste.forEach((aufgabe, i) => {
+    const marke = `${label} ${i + 1} (${aufgabe.titel || 'ohne Titel'})`;
     if (!aufgabe.titel) errors.push(`${marke}: titel fehlt`);
     if (!aufgabe.bild) errors.push(`${marke}: bild fehlt`);
     if (!aufgabe.fragDe) errors.push(`${marke}: fragDe fehlt`);
@@ -45,6 +38,28 @@ function validateVerkehrsmodul(modul) {
       errors.push(`${marke}: ${anzahlRichtig} statt genau einer richtigen Option markiert`);
     }
   });
+  return errors;
+}
+
+function validateVerkehrsmodul(modul) {
+  const errors = [];
+  if (!modul.id) errors.push('id fehlt');
+  if (!modul.titel) errors.push('titel fehlt');
+  if (!modul.themenbereich) errors.push('themenbereich fehlt');
+  if (!modul.einleitungDe) errors.push('einleitungDe fehlt');
+  if (!modul.einleitungEn) errors.push('einleitungEn fehlt');
+  if (!modul.regelDe) errors.push('regelDe fehlt');
+  if (!modul.regelEn) errors.push('regelEn fehlt');
+
+  const aufgaben = modul.aufgaben || [];
+  if (aufgaben.length < MINDESTENS_AUFGABEN) {
+    errors.push(`zu wenige Aufgaben (${aufgaben.length}, mindestens ${MINDESTENS_AUFGABEN})`);
+  }
+  errors.push(...validateAufgabenListe(aufgaben, 'Aufgabe'));
+
+  // Schilder sind eine optionale Variation (Schild-Quiz) – kein Modul muss
+  // sie haben, aber die, die vorhanden sind, müssen vollständig sein.
+  errors.push(...validateAufgabenListe(modul.schilder || [], 'Schild'));
 
   return { valid: errors.length === 0, errors };
 }

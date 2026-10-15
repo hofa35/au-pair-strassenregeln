@@ -9,12 +9,20 @@ const { escapeHtml } = require('./html.js');
 const PFEIL_ICON = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg>`;
 
 function renderModulKarte(eintrag, gebaut) {
-  const inneres = `
+  const titel = escapeHtml(eintrag.titel);
+  const bildHtml = eintrag.bild
+    ? `
+  <div class="karte-bild">
+    <img src="bilder/${eintrag.bild}" alt="Illustration zu Modul ${eintrag.id}: ${titel}" width="720" height="480" loading="lazy" decoding="async">
+  </div>`
+    : '';
+
+  const inneres = `${bildHtml}
   <div class="karte-kopf" style="background:${eintrag.akzent}">
     <span class="karte-nummer">${eintrag.id}</span>
     <span class="karte-thema">${escapeHtml(eintrag.themenbereich)}</span>
   </div>
-  <h3 class="karte-titel">${escapeHtml(eintrag.titel)}</h3>
+  <h3 class="karte-titel">${titel}</h3>
   ${gebaut ? `<span class="karte-pfeil">${PFEIL_ICON}</span>` : '<span class="karte-status">in Arbeit</span>'}`;
 
   if (gebaut) {
@@ -26,7 +34,7 @@ function renderModulKarte(eintrag, gebaut) {
 }
 
 /**
- * @param {Array<{id:number,titel:string,themenbereich:string,akzent:string}>} uebersicht
+ * @param {Array<{id:number,titel:string,themenbereich:string,akzent:string,bild?:string}>} uebersicht
  *   verkehr/module/uebersicht.json – bei fertigen Modulen überschreibt
  *   verkehr-build.js Titel/Themenbereich mit dem Inhalt der echten
  *   Modul-Datei, die JSON-Datei liefert nur die Vorschau für unfertige.

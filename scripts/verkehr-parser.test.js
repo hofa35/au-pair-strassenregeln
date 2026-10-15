@@ -49,6 +49,55 @@ test('parseVerkehrsmodul markiert genau die richtige Option', () => {
   ]);
 });
 
+test('parseVerkehrsmodul liest Schild-Quiz-Einträge getrennt von Aufgaben', () => {
+  const modul = parseVerkehrsmodul(fixturePfad);
+  assert.strictEqual(modul.schilder.length, 1);
+  assert.strictEqual(modul.schilder[0].titel, 'Testschild');
+  assert.strictEqual(modul.schilder[0].bild, 'test-schild-1.webp');
+  assert.strictEqual(modul.schilder[0].fragDe, 'Was bedeutet dieses Schild?');
+  assert.deepStrictEqual(modul.schilder[0].optionen, [
+    { text: 'Richtige Bedeutung', richtig: true },
+    { text: 'Falsche Bedeutung', richtig: false },
+  ]);
+  // Ein Schild-Eintrag darf nicht versehentlich auch als Aufgabe auftauchen.
+  assert.strictEqual(modul.aufgaben.length, 2);
+});
+
+test('parseVerkehrsmodul liefert ein leeres schilder-Array, wenn kein Schild-Quiz im Modul steht', () => {
+  const pfad = path.join(os.tmpdir(), 'ohne-schilder.md');
+  fs.writeFileSync(
+    pfad,
+    [
+      '---',
+      'id: 9',
+      'titel: "X"',
+      'themenbereich: "Y"',
+      'typ: verkehrsmodul',
+      '---',
+      '',
+      '## Einleitung Deutsch',
+      '',
+      'X',
+      '',
+      '## Einleitung Englisch',
+      '',
+      'X',
+      '',
+      '## Regel Deutsch',
+      '',
+      'X',
+      '',
+      '## Regel Englisch',
+      '',
+      'X',
+      '',
+    ].join('\n')
+  );
+  const modul = parseVerkehrsmodul(pfad);
+  assert.deepStrictEqual(modul.schilder, []);
+  fs.rmSync(pfad);
+});
+
 test('parseVerkehrsmodul wirft Fehler bei falschem typ', () => {
   const pfad = path.join(os.tmpdir(), 'falscher-typ.md');
   fs.writeFileSync(

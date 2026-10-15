@@ -49,11 +49,60 @@ ${optionenHtml}
 }
 
 /**
+ * Schild-Quiz-Karte: dieselben Felder wie eine Aufgabe (Bild, Frage,
+ * Optionen, Erklärung), aber ohne Straßenszene – nur das Schild-Icon, dafür
+ * im Grid statt untereinander. Die Auswerte-Logik in verkehr-uebung.js
+ * braucht dafür keine Änderung, sie greift generisch über die Klassen
+ * ".optionen" / ".aufgabe" / ".rueckmeldung" / ".erklaerung-feld", die hier
+ * bewusst wiederverwendet werden. Eigener name-Namensraum ("schild-N" statt
+ * "aufgabe-N"), damit die Radiogruppen nicht mit denen der Aufgaben
+ * kollidieren.
+ */
+function renderSchild(schild, index) {
+  const richtigIndex = schild.optionen.findIndex((option) => option.richtig);
+  const optionenHtml = schild.optionen
+    .map(
+      (option, i) => `    <label class="option">
+      <input type="radio" name="schild-${index}" value="${i}">
+      <span>${escapeHtml(option.text)}</span>
+    </label>`
+    )
+    .join('\n');
+
+  return `<article class="aufgabe schild-karte">
+  <div class="schild-bild">
+    <img src="bilder/${schild.bild}" alt="Verkehrsschild: ${escapeHtml(schild.titel)}" width="720" height="480" loading="lazy" decoding="async">
+  </div>
+  <h3>${escapeHtml(schild.titel)}</h3>
+  ${renderErklaerungsbox(schild.fragDe, schild.fragEn, 'erklaerung--frage')}
+  <form class="optionen" data-richtig="${richtigIndex}">
+${optionenHtml}
+  </form>
+  <p class="rueckmeldung" hidden></p>
+  <div class="erklaerung-feld" hidden>
+    ${renderErklaerungsbox(schild.erklaerungDe, schild.erklaerungEn)}
+  </div>
+</article>`;
+}
+
+/**
  * @param {object} modul  Ergebnis von parseVerkehrsmodul()
  * @param {{css?: string, js?: string, uebung?: string}} [versionen]
  */
 function renderModulHtml(modul, versionen = {}) {
   const aufgabenHtml = modul.aufgaben.map((aufgabe, i) => renderAufgabe(aufgabe, i)).join('\n\n');
+  const schilder = modul.schilder || [];
+  const schilderBlockHtml = schilder.length
+    ? `
+<section class="block block--schilder">
+<h2>Schilder erkennen</h2>
+<p class="block-hinweis">Kurzes Schilder-Quiz, ohne Szene drumherum: Nur das Schild – was bedeutet es?</p>
+<div class="schilder-grid">
+${schilder.map((schild, i) => renderSchild(schild, i)).join('\n\n')}
+</div>
+</section>
+`
+    : '';
 
   return `<!DOCTYPE html>
 <html lang="de">
@@ -82,7 +131,7 @@ ${renderErklaerungsbox(modul.regelDe, modul.regelEn)}
 <h2>Teste dich selbst</h2>
 ${aufgabenHtml}
 </section>
-
+${schilderBlockHtml}
 <p class="modul-fuss"><a class="zurueck" href="index.html">${ZURUECK_ICON}<span>Alle Module in der Übersicht</span></a></p>
 </main>
 <script src="${mitVersion('toggle.js', versionen.js)}"></script>
@@ -91,4 +140,4 @@ ${aufgabenHtml}
 </html>`;
 }
 
-module.exports = { renderModulHtml, renderAufgabe, mitVersion, ZURUECK_ICON };
+module.exports = { renderModulHtml, renderAufgabe, renderSchild, mitVersion, ZURUECK_ICON };

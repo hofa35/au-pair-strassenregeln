@@ -30,4 +30,10 @@ test('parse -> validate -> render: die Testdatei ergibt ein gültiges, vollstän
   assert.match(html, /Richtige Antwort/);
   assert.match(html, /Weil das die Regel ist\./);
   assert.match(html, /Zweite Aufgabe/);
+
+  // Das Schild-Quiz aus der Fixture muss ebenso vollständig ankommen.
+  assert.match(html, /Schilder erkennen/);
+  assert.match(html, /Testschild/);
+  assert.match(html, /Was bedeutet dieses Schild\?/);
+  assert.match(html, /Weil das Schild das bedeutet\./);
 });

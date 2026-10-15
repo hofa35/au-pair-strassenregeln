@@ -14,6 +14,13 @@ const fs = require('node:fs');
 
 const AUFGABE_MUSTER = /^Aufgabe\s*[:·\-–]?\s*(.*)$/;
 
+// Eigenes, schlankeres Übungsformat neben der normalen Aufgabe: nur das
+// Schild-Icon statt einer ganzen Straßenszene, sonst dieselben Felder
+// (Bild, Frage, Optionen, Erklärung). Der Doppelpunkt ist hier Pflicht,
+// nicht optional wie bei AUFGABE_MUSTER – sonst würde z.B. eine Überschrift
+// "Schilder und Radwege" fälschlich als Schild-Quiz erkannt.
+const SCHILD_MUSTER = /^Schild\s*:\s*(.*)$/;
+
 /**
  * Vereinheitlicht die Zeilenenden, bevor irgendetwas geparst wird. Git
  * stellt unter Windows beim Auschecken mit core.autocrlf=true auf CRLF um,
@@ -90,8 +97,8 @@ function parseOptionen(text) {
     });
 }
 
-function parseAufgabe(titelRoh, inhalt) {
-  const treffer = titelRoh.match(AUFGABE_MUSTER);
+function parseAufgabe(titelRoh, inhalt, muster = AUFGABE_MUSTER) {
+  const treffer = titelRoh.match(muster);
   const titel = treffer ? treffer[1].trim() : titelRoh.trim();
   const unter = new Map(parseUnterabschnitte(inhalt).map((u) => [u.titel, u.inhalt]));
 
@@ -117,9 +124,12 @@ function parseVerkehrsmodul(filePath) {
 
   const sektionen = new Map();
   const aufgaben = [];
+  const schilder = [];
   for (const { titel, inhalt } of parseAbschnitte(body)) {
     if (AUFGABE_MUSTER.test(titel)) {
       aufgaben.push(parseAufgabe(titel, inhalt));
+    } else if (SCHILD_MUSTER.test(titel)) {
+      schilder.push(parseAufgabe(titel, inhalt, SCHILD_MUSTER));
     } else {
       sektionen.set(titel, inhalt);
     }
@@ -134,6 +144,7 @@ function parseVerkehrsmodul(filePath) {
     regelDe: sektionen.get('Regel Deutsch') || '',
     regelEn: sektionen.get('Regel Englisch') || '',
     aufgaben,
+    schilder,
   };
 }
 

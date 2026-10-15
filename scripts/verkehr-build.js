@@ -44,6 +44,13 @@ function main() {
   }
 
   const uebersicht = JSON.parse(fs.readFileSync(path.join(modulDir, 'uebersicht.json'), 'utf8'));
+  for (const eintrag of uebersicht) {
+    if (eintrag.bild && !fs.existsSync(path.join(bilderDir, eintrag.bild))) {
+      console.warn(
+        `Warnung: Übersicht, Modul ${eintrag.id} hat kein Bild "${eintrag.bild}" in verkehr/bilder/`
+      );
+    }
+  }
 
   const dateien = fs.existsSync(modulDir)
     ? fs.readdirSync(modulDir).filter((f) => f.endsWith('.md'))
@@ -60,6 +67,13 @@ function main() {
       if (aufgabe.bild && !fs.existsSync(path.join(bilderDir, aufgabe.bild))) {
         console.warn(
           `Warnung: Modul ${modul.id}, Aufgabe "${aufgabe.titel}" hat kein Bild "${aufgabe.bild}" in verkehr/bilder/`
+        );
+      }
+    }
+    for (const schild of modul.schilder || []) {
+      if (schild.bild && !fs.existsSync(path.join(bilderDir, schild.bild))) {
+        console.warn(
+          `Warnung: Modul ${modul.id}, Schild "${schild.titel}" hat kein Bild "${schild.bild}" in verkehr/bilder/`
         );
       }
     }

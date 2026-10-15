@@ -49,6 +49,39 @@ test('renderModulHtml bindet toggle.js und verkehr-uebung.js ein', () => {
   assert.match(html, /<script src="verkehr-uebung\.js">/);
 });
 
+test('renderModulHtml rendert ohne Schilder-Block, wenn modul.schilder fehlt oder leer ist', () => {
+  const html = renderModulHtml(beispielModul);
+  assert.doesNotMatch(html, /Schilder erkennen/);
+  assert.doesNotMatch(html, /schilder-grid/);
+});
+
+test('renderModulHtml rendert den Schilder-Block, wenn modul.schilder Einträge hat', () => {
+  const modulMitSchild = {
+    ...beispielModul,
+    schilder: [
+      {
+        titel: 'Vorfahrt gewähren',
+        bild: 'schilder-vorfahrt-gewaehren.webp',
+        fragDe: 'Was bedeutet dieses Schild?',
+        fragEn: 'What does this sign mean?',
+        optionen: [
+          { text: 'Andere zuerst fahren lassen', richtig: true },
+          { text: 'Vollständig anhalten', richtig: false },
+        ],
+        erklaerungDe: 'Vorfahrt gewähren, aber kein Pflicht-Halt.',
+        erklaerungEn: 'Yield, but no mandatory stop.',
+      },
+    ],
+  };
+  const html = renderModulHtml(modulMitSchild);
+  assert.match(html, /Schilder erkennen/);
+  assert.match(html, /class="schilder-grid"/);
+  assert.match(html, /class="aufgabe schild-karte"/);
+  assert.match(html, /name="schild-0"/);
+  assert.match(html, /src="bilder\/schilder-vorfahrt-gewaehren\.webp"/);
+  assert.doesNotMatch(html, /undefined/);
+});
+
 test('renderModulHtml escaped Optionstexte', () => {
   const modulMitSonderzeichen = {
     ...beispielModul,
